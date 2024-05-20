@@ -1,0 +1,78 @@
+#include <algorithm>
+#include <iostream>
+#include <vector>
+
+static int cnt = 1;
+static int maxcolour = 1;
+
+void Dfs(std::vector<std::vector<int>>& graph, std::vector<std::string>& colour,
+         std::vector<std::pair<int, int>>& leave, int vertex) {
+  colour[vertex] = "grey";
+  for (int son : graph[vertex]) {
+    if (colour[son] == "white") {
+      Dfs(graph, colour, leave, son);
+    } else if (colour[son] == "grey") {
+    }
+  }
+  colour[vertex] = "black";
+  leave[vertex - 1].first = cnt;
+  cnt += 1;
+}
+
+void Dfs2(std::vector<std::vector<int>>& graph, std::vector<int>& colour,
+          std::vector<bool>& used, int vertex) {
+  used[vertex] = false;
+  colour[vertex] = maxcolour;
+  for (int uwu : graph[vertex]) {
+    if (colour[uwu] == 0) {
+      Dfs2(graph, colour, used, uwu);
+    }
+  }
+}
+
+int main() {
+  int nnn;
+  int mmm;
+  std::cin >> nnn >> mmm;
+
+  std::vector<std::vector<int>> graph(nnn + 1);
+  std::vector<std::vector<int>> graphi(nnn + 1);
+
+  std::vector<std::string> colour(nnn + 1, "white");
+  std::vector<std::pair<int, int>> leave(nnn);
+  for (int i = 0; i < nnn; i++) {
+    leave[i] = {0, i + 1};
+  }
+
+  for (int i = 0; i < mmm; i++) {
+    int from;
+    int too;
+    std::cin >> from >> too;
+    graph[too].push_back(from);
+    graphi[from].push_back(too);
+  }
+
+  for (int i = 1; i < nnn + 1; i++) {
+    if (colour[i] == "white") {
+      Dfs(graph, colour, leave, i);
+    }
+  }
+
+  std::sort(leave.begin(), leave.end());
+
+  std::vector<int> colour2(nnn + 1, 0);
+
+  std::vector<bool> used(nnn + 1, true);
+  for (int i = 0; i < nnn; i++) {
+    int myvert = leave[leave.size() - 1 - i].second;
+    if (used[myvert]) {
+      Dfs2(graphi, colour2, used, myvert);
+      maxcolour += 1;
+    }
+  }
+
+  std::cout << maxcolour - 1 << '\n';
+  for (int i = 1; i < nnn + 1; i++) {
+    std::cout << maxcolour - colour2[i] << ' ';
+  }
+}
