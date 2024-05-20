@@ -1,0 +1,77 @@
+#include <algorithm>
+#include <iostream>
+#include <vector>
+
+const int KInf = 100'000;
+static int timee = 1;
+
+struct GraphInfo {
+  std::vector<std::vector<std::pair<int, int>>> graph;
+  // V графе гранится вершина куда и номер ребра;
+  std::vector<bool> visited;
+  std::vector<int> tin;
+  std::vector<int> fup;
+  std::vector<int> bridge;
+
+  GraphInfo(int nnn)
+      : graph(nnn + 1),
+        visited(nnn + 1, false),
+        tin(nnn + 1, -1),
+        fup(nnn + 1, KInf) {}
+};
+
+void Dfs(GraphInfo& ggg, int vertex, int parent, int paredge) {
+  timee += 1;
+  ggg.tin[vertex] = timee;
+  ggg.fup[vertex] = timee;
+
+  ggg.visited[vertex] = true;
+  for (std::pair<int, int> son : ggg.graph[vertex]) {
+    if (son.first == parent and son.second == paredge) {
+      continue;
+    }
+    if (ggg.visited[son.first]) {
+      ggg.fup[vertex] = std::min(ggg.fup[vertex], ggg.tin[son.first]);
+    } else {
+      Dfs(ggg, son.first, vertex, son.second);
+      ggg.fup[vertex] = std::min(ggg.fup[vertex], ggg.fup[son.first]);
+      if (ggg.fup[son.first] > ggg.tin[vertex]) {
+        ggg.bridge.push_back(son.second);
+      }
+    }
+  }
+}
+
+int main() {
+  int nnn;
+  int mmm;
+  std::cin >> nnn >> mmm;
+
+  GraphInfo ggg(nnn);
+
+  for (int i = 1; i < mmm + 1; i++) {
+    int from;
+    int too;
+    std::cin >> from >> too;
+
+    ggg.graph[from].push_back({too, i});
+    ggg.graph[too].push_back({from, i});
+  }
+
+  for (int i = 1; i < nnn + 1; i++) {
+    if (ggg.visited[i]) {
+      continue;
+    }
+    Dfs(ggg, i, -1, 0);
+  }
+
+  if (!ggg.bridge.empty()) {
+    std::cout << ggg.bridge.size() << '\n';
+    std::sort(ggg.bridge.begin(), ggg.bridge.end());
+    for (size_t i = 0; i < ggg.bridge.size(); i++) {
+      std::cout << ggg.bridge[i] << ' ';
+    }
+  } else {
+    std::cout << 0;
+  }
+}
