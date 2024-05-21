@@ -6,27 +6,20 @@ static int cnt = 1;
 static int maxcolour = 1;
 
 class MyGraph {
-    std::vector<std::vector<int>> graph;
-    std::vector<std::vector<int>> graphi;
-    std::vector<std::string> colour;
-    std::vector<std::pair<int, int>> leave;
-    std::vector<int> colour2;
-    std::vector<bool> used;
-
 public:
-    MyGraph(int nnn) {
-        std::vector<std::vector<int>> graph(nnn + 1);
-        std::vector<std::vector<int>> graphi(nnn + 1);
+    MyGraph(int vertexes_amount) {
+        std::vector<std::vector<int>> graph(vertexes_amount + 1);
+        std::vector<std::vector<int>> graphi(vertexes_amount + 1);
 
-        std::vector<std::string> colour(nnn + 1, "white");
-        std::vector<std::pair<int, int>> leave(nnn);
+        std::vector<std::string> colour(vertexes_amount + 1, "white");
+        std::vector<std::pair<int, int>> leave(vertexes_amount);
 
-        for (int i = 0; i < nnn; i++) {
+        for (int i = 0; i < vertexes_amount; i++) {
             leave[i] = {0, i + 1};
         }
 
-        std::vector<int> colour2(nnn + 1, 0);
-        std::vector<bool> used(nnn + 1, true);
+        std::vector<int> colour2(vertexes_amount + 1, 0);
+        std::vector<bool> used(vertexes_amount + 1, true);
     }
 
     void PushElems(int from, int too) {
@@ -50,16 +43,16 @@ public:
     void Ans(int vertex) {
         used[vertex] = false;
         colour[vertex] = maxcolour;
-        for (int uwu : graph[vertex]) {
-            if (colour[uwu] == 0) {
-                Ans(uwu);
+        for (int colour_tmp : graph[vertex]) {
+            if (colour[colour_tmp] == 0) {
+                Ans(colour_tmp);
             }
         }
     }
 
     void MakeProgram() {
-        int nnn = used.size() - 1;
-        for (int i = 1; i < nnn + 1; i++) {
+        int vertexes_amount = used.size() - 1;
+        for (int i = 1; i < vertexes_amount + 1; i++) {
             if (colour[i] == "white") {
                 Dfs(i);
             }
@@ -67,7 +60,7 @@ public:
 
         std::sort(leave.begin(), leave.end());
 
-        for (int i = 0; i < nnn; i++) {
+        for (int i = 0; i < vertexes_amount; i++) {
             int myvert = leave[leave.size() - 1 - i].second;
             if (used[myvert]) {
                 Ans(myvert);
@@ -76,19 +69,27 @@ public:
         }
 
         std::cout << maxcolour - 1 << '\n';
-        for (int i = 1; i < nnn + 1; i++) {
+        for (int i = 1; i < vertexes_amount + 1; i++) {
             std::cout << maxcolour - colour2[i] << ' ';
         }
     }
+
+private:
+    std::vector<std::vector<int>> graph;
+    std::vector<std::vector<int>> graphi;
+    std::vector<std::string> colour;
+    std::vector<std::pair<int, int>> leave;
+    std::vector<int> colour2;
+    std::vector<bool> used;
 };
 
 int main() {
-    int nnn;
-    int mmm;
-    std::cin >> nnn >> mmm;
-    MyGraph graph(nnn);
+    int vertexes_amount;
+    int edges_amount;
+    std::cin >> vertexes_amount >> edges_amount;
+    MyGraph graph(vertexes_amount);
 
-    for (int i = 0; i < mmm; i++) {
+    for (int i = 0; i < edges_amount; i++) {
         int from;
         int too;
         std::cin >> from >> too;
