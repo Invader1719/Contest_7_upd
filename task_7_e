@@ -1,0 +1,78 @@
+#include <algorithm>
+#include <iostream>
+#include <vector>
+
+const int KInf = 100'000;
+static int timee = 1;
+
+class GraphInfo {
+public:
+    std::vector<std::vector<std::pair<int, int>>> graph;
+    // V графе гранится вершина куда и номер ребра;
+    std::vector<bool> visited;
+    std::vector<int> tin;
+    std::vector<int> fup;
+    std::vector<int> bridge;
+
+    GraphInfo(int vertexes)
+            : graph(vertexes + 1),
+              visited(vertexes + 1, false),
+              tin(vertexes + 1, -1),
+              fup(vertexes + 1, KInf) {}
+
+    void Dfs(GraphInfo& mygraph, int vertex, int parent, int paredge) {
+        timee += 1;
+        mygraph.tin[vertex] = timee;
+        mygraph.fup[vertex] = timee;
+
+        mygraph.visited[vertex] = true;
+        for (std::pair<int, int> son : mygraph.graph[vertex]) {
+            if (son.first == parent and son.second == paredge) {
+                continue;
+            }
+            if (mygraph.visited[son.first]) {
+                mygraph.fup[vertex] = std::min(mygraph.fup[vertex], mygraph.tin[son.first]);
+            } else {
+                Dfs(mygraph, son.first, vertex, son.second);
+                mygraph.fup[vertex] = std::min(mygraph.fup[vertex], mygraph.fup[son.first]);
+                if (mygraph.fup[son.first] > mygraph.tin[vertex]) {
+                    mygraph.bridge.push_back(son.second);
+                }
+            }
+        }
+    }
+};
+
+int main() {
+    int vertexes;
+    int edges;
+    std::cin >> vertexes >> edges;
+
+    GraphInfo mygraph(vertexes);
+
+    for (int i = 1; i < edges + 1; i++) {
+        int from;
+        int too;
+        std::cin >> from >> too;
+
+        mygraph.graph[from].push_back({too, i});
+        mygraph.graph[too].push_back({from, i});
+    }
+
+    for (int i = 1; i < vertexes + 1; i++) {
+        if (mygraph.visited[i]) {
+            continue;
+        }
+        mygraph.Dfs(mygraph, i, -1, 0);
+    }
+
+    if (!mygraph.bridge.empty()) {
+        std::cout << mygraph.bridge.size() << '\n';
+        std::sort(mygraph.bridge.begin(), mygraph.bridge.end());
+        for (size_t i = 0; i < mygraph.bridge.size(); i++) {
+            std::cout << mygraph.bridge[i] << ' ';
+        }
+    } else {
+        std::cout << 0;
+    }
+}
